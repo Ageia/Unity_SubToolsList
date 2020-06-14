@@ -4,5 +4,6 @@
 **- AI_MovePath, AI_MovePath_Editor**
 
 간단한 포지션값 생성 툴입니다.
+List<Vector3>로 구성합니다.
 
 ![미리보기](https://user-images.githubusercontent.com/10443544/84587142-a7deb680-ae57-11ea-8064-d936b9ff140d.png)
