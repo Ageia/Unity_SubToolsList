@@ -5,7 +5,7 @@
 간단한 포지션값 생성 툴입니다.
 벡터3 리스트로 구성되어 있습니다.
 
-https://www.youtube.com/watch?v=sAlpPW5nnBs&feature=youtu.be
+[![Watch the video](https://user-images.githubusercontent.com/10443544/84587537-0194b000-ae5b-11ea-903c-ee073f3d4337.png)](https://youtu.be/sAlpPW5nnBs)
 
 ![미리보기](https://user-images.githubusercontent.com/10443544/84587142-a7deb680-ae57-11ea-8064-d936b9ff140d.png)
 
