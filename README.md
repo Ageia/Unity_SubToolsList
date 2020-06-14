@@ -1,4 +1,4 @@
-# 유니티 서브툴 모음.
+# 유니티 서브툴 모음
 
 **- AI_MovePath, AI_MovePath_Editor**
 
