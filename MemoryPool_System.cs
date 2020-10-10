@@ -6,24 +6,29 @@ using UnityEditor;
 
 public class MemoryPool_System : MonoBehaviour
 {
-    Dictionary<GameObject, List<GameObject>> ObjectList = new Dictionary<GameObject, List<GameObject>>(); //½ÇÁ¦·Î ¾²´Â µ¥ÀÌÅÍ
-
+    //ì‚¬ìš©ë²• : 
+    //CallObject í•¨ìˆ˜ë¡œ ì˜¤ë¸Œì íŠ¸ ë¶ˆëŸ¬ì˜¤ê¸°.
+    //ì‚¬ìš©í•˜ì§€ ì•ŠëŠ” ì˜¤ë¸Œì íŠ¸ëŠ” SetActive(false)
     ////////////////////////////////////////////////////////
-    ///////////////     Å¸ÀÔº° ºÒ·¯¿À±â      ////////////////
+    ///////////////     íƒ€ì…ë³„ ë¶ˆëŸ¬ì˜¤ê¸°      ////////////////
     ////////////////////////////////////////////////////////
     public GameObject CallObject(GameObject TargetGameObject)
+
     {
         return CallOObject_Active(TargetGameObject, new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0), null); ;
     }
+    public GameObject CallObject(GameObject TargetGameObject, Vector3 position)
+
+    {
+        return CallOObject_Active(TargetGameObject, position, Quaternion.Euler(0, 0, 0), null); ;
+    }
     public GameObject CallObject(GameObject TargetGameObject, Vector3 position, Quaternion rotation)
     {
-        CallOObject_Active(TargetGameObject, position, rotation, null);
-        return null;
+        return CallOObject_Active(TargetGameObject, position, rotation, null);
     }
     public GameObject CallObject(GameObject TargetGameObject, Vector3 position, Quaternion rotation, Transform parent)
     {
-        CallOObject_Active(TargetGameObject, position, rotation, parent);
-        return null;
+        return CallOObject_Active(TargetGameObject, position, rotation, parent);
     }
     public List<GameObject> GetTargetObject(GameObject GameObject)
     {
@@ -34,23 +39,23 @@ public class MemoryPool_System : MonoBehaviour
 
             for (int j = 0; j < GetList.Count; j++)
             {
-                AllObject.Add(GetList[j]); //¸ğµç ¿ÀºêÁ§Æ®¿¡ Ãß°¡
+                AllObject.Add(GetList[j]); //ëª¨ë“  ì˜¤ë¸Œì íŠ¸ì— ì¶”ê°€
             }
         }
 
-        //¿ÀºêÁ§Æ® ¾ø´ÂÁö È®ÀÎ ÈÄ ¾øÀ» °æ¿ì ¸®½ºÆ®¿¡¼­ Á¦°Å
+        //ì˜¤ë¸Œì íŠ¸ ì—†ëŠ”ì§€ í™•ì¸ í›„ ì—†ì„ ê²½ìš° ë¦¬ìŠ¤íŠ¸ì—ì„œ ì œê±°
         for (var i = AllObject.Count - 1; i > -1; i--)
         {
             if (AllObject[i] == null)
                 AllObject.RemoveAt(i);
         }
 
-        //¸®½ºÆ® Áßº¹ Á¦°Å
+        //ë¦¬ìŠ¤íŠ¸ ì¤‘ë³µ ì œê±°
         AllObject = AllObject.Distinct().ToList();
 
         return AllObject;
     }
-    public List<GameObject> GetAllObject() //ÀÌ ¸Ş¸ğ¸®Ç® ½Ã½ºÅÛ¿¡¼­ °ü¸®ÇÏ´Â ¸ğµç ¿ÀºêÁ§Æ®¸¦ °¡Á®¿É´Ï´Ù. °ÔÀÓ ¾À¿¡ ¾ø´Â ¿ÀºêÁ§Æ®´Â ¸®½ºÆ®¿¡¼­ Á¦°ÅÇÕ´Ï´Ù.
+    public List<GameObject> GetAllObject() //ì´ ë©”ëª¨ë¦¬í’€ ì‹œìŠ¤í…œì—ì„œ ê´€ë¦¬í•˜ëŠ” ëª¨ë“  ì˜¤ë¸Œì íŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤. ê²Œì„ ì”¬ì— ì—†ëŠ” ì˜¤ë¸Œì íŠ¸ëŠ” ë¦¬ìŠ¤íŠ¸ì—ì„œ ì œê±°í•©ë‹ˆë‹¤.
     {
         List<GameObject> AllObject = new List<GameObject>();
         for (int i = 0; i < ObjectList.Count; i++)
@@ -59,30 +64,30 @@ public class MemoryPool_System : MonoBehaviour
 
             for (int j = 0; j < GetList.Count; j++)
             {
-                AllObject.Add(GetList[j]); //¸ğµç ¿ÀºêÁ§Æ®¿¡ Ãß°¡
+                AllObject.Add(GetList[j]); //ëª¨ë“  ì˜¤ë¸Œì íŠ¸ì— ì¶”ê°€
             }
         }
 
-        //¿ÀºêÁ§Æ® ¾ø´ÂÁö È®ÀÎ ÈÄ ¾øÀ» °æ¿ì ¸®½ºÆ®¿¡¼­ Á¦°Å
+        //ì˜¤ë¸Œì íŠ¸ ì—†ëŠ”ì§€ í™•ì¸ í›„ ì—†ì„ ê²½ìš° ë¦¬ìŠ¤íŠ¸ì—ì„œ ì œê±°
         for (var i = AllObject.Count - 1; i > -1; i--)
         {
             if (AllObject[i] == null)
                 AllObject.RemoveAt(i);
         }
 
-        //¸®½ºÆ® Áßº¹ Á¦°Å
+        //ë¦¬ìŠ¤íŠ¸ ì¤‘ë³µ ì œê±°
         AllObject = AllObject.Distinct().ToList();
 
         return AllObject;
     }
-    public void RemoveTargetObject(GameObject GameObject) //ÀÌ ¸Ş¸ğ¸®Ç®¿¡¼­ ÇØ´ç ¿ÀºêÁ§Æ®¸¦ »ç¿ëÇÏ´Â ¸ğµç ¿ÀºêÁ§Æ®¸¦ Á¦°Å ÇÕ´Ï´Ù.
+    public void RemoveTargetObject(GameObject GameObject) //ì´ ë©”ëª¨ë¦¬í’€ì—ì„œ í•´ë‹¹ ì˜¤ë¸Œì íŠ¸ë¥¼ ì‚¬ìš©í•˜ëŠ” ì˜¤ë¸Œì íŠ¸ë¥¼ ì œê±° í•©ë‹ˆë‹¤.
     {
         foreach (var item in GetTargetObject(GameObject))
         {
             Destroy(item);
         }
     }
-    public void RemoveAllObject() //ÀÌ ¸Ş¸ğ¸®Ç®¿¡ Á¸Àç ÇÏ´Â ¸ğµç ¿ÀºêÁ§Æ®¸¦ Á¦°Å ÇÕ´Ï´Ù.
+    public void RemoveAllObject() //ì´ ë©”ëª¨ë¦¬í’€ì— ì¡´ì¬ í•˜ëŠ” ëª¨ë“  ì˜¤ë¸Œì íŠ¸ë¥¼ ì œê±° í•©ë‹ˆë‹¤.
     {
         foreach (var item in GetAllObject())
         {
@@ -90,27 +95,45 @@ public class MemoryPool_System : MonoBehaviour
         }
     }
 
+
+
+    //ì‹±ê¸€í„´
+    public static MemoryPool_System instance = null; //ê²Œì„ ë§¤ë‹ˆì € ê°ì²´
+    private void Awake()
+    {
+        if (instance == null) //ê²Œì„ ë§¤ë‹ˆì € ê°ì²´ê°€ ì—†ì„ ë•Œ
+        {
+            instance = this; //ì´ ê°ì²´ë¥¼ ë§¤ë‹ˆì €ë¡œ ì§€ì •
+        }
+        else if (instance != null) //ë§Œì•½ ì´ë¯¸ ìˆì„ ë•Œ ìì‹ ì´ ì´ˆê¸°ì˜ ê°ì²´ê°€ ì•„ë‹ ê²½ìš°
+        {
+            Destroy(this.gameObject); //í˜„ì¬ ê°ì²´ë¥¼ ì œê±°
+        }
+    }
+
+    Dictionary<GameObject, List<GameObject>> ObjectList = new Dictionary<GameObject, List<GameObject>>(); //ì‹¤ì œë¡œ ì“°ëŠ” ë°ì´í„°
+
     /////////////////////////////////////////////////////////////
-    ///////////////     ¿ÀºêÁ§Æ® È£Ãâ ½Ã½ºÅÛ      ////////////////
+    ///////////////     ì˜¤ë¸Œì íŠ¸ í˜¸ì¶œ ì‹œìŠ¤í…œ      ////////////////
     /////////////////////////////////////////////////////////////
     #region
-    //Å¸ÀÔº° ºÒ·¯¿À±â Ã³¸®
+    //íƒ€ì…ë³„ ë¶ˆëŸ¬ì˜¤ê¸° ì²˜ë¦¬
     GameObject CallOObject_Active(GameObject TargetGameObject, Vector3 position, Quaternion rotation, Transform parent)
     {
-        if (ObjectList.ContainsKey(TargetGameObject) == false) //¸®½ºÆ® ÀÚÃ¼°¡ ¾øÀ» °æ¿ì
+        if (ObjectList.ContainsKey(TargetGameObject) == false) //ë¦¬ìŠ¤íŠ¸ ìì²´ê°€ ì—†ì„ ê²½ìš°
         {
-            return CreateNewObjectList(TargetGameObject, position, rotation, parent); //¸®½ºÆ®µµ »õ·Î »ı¼º ÇÏ°í ¿ÀºêÁ§Æ®µµ »õ·Î »ı¼ºÇØ¼­ Ãß°¡
+            return CreateNewObjectList(TargetGameObject, position, rotation, parent); //ë¦¬ìŠ¤íŠ¸ë„ ìƒˆë¡œ ìƒì„± í•˜ê³  ì˜¤ë¸Œì íŠ¸ë„ ìƒˆë¡œ ìƒì„±í•´ì„œ ì¶”ê°€
         }
-        else //ÀÖÀ» °æ¿ì
+        else //ìˆì„ ê²½ìš°
         {
             GameObject GetObject = SearchListActive(TargetGameObject);
-            if (GetObject == null) //¸®½ºÆ®°¡ ÀÖ´Âµ¥ ¿ÀºêÁ§Æ®°¡ ¾øÀ» °æ¿ì
+            if (GetObject == null) //ë¦¬ìŠ¤íŠ¸ê°€ ìˆëŠ”ë° ì˜¤ë¸Œì íŠ¸ê°€ ì—†ì„ ê²½ìš°
             {
-                return AddTargetDictionalyList(TargetGameObject, position, rotation, parent); //ÇØ´ç ¸®½ºÆ®¿¡ »õ·Î¿î³ğ Ãß°¡ ÇÑ µÚ¿¡ ¸®ÅÏ ¹ŞÀ½
+                return AddTargetDictionalyList(TargetGameObject, position, rotation, parent); //í•´ë‹¹ ë¦¬ìŠ¤íŠ¸ì— ìƒˆë¡œìš´ë†ˆ ì¶”ê°€ í•œ ë’¤ì— ë¦¬í„´ ë°›ìŒ
             }
-            else //¸®½ºÆ®µµ ÀÖ°í ºñÈ°¼º ¿ÀºêÁ§Æ®µµ ÀÖÀ» °æ¿ì
+            else //ë¦¬ìŠ¤íŠ¸ë„ ìˆê³  ë¹„í™œì„± ì˜¤ë¸Œì íŠ¸ë„ ìˆì„ ê²½ìš°
             {
-                //¿ÀºêÁ§Æ® À§Ä¡, È¸Àü°ª Àû¿ë ÈÄ ÄÑ±â
+                //ì˜¤ë¸Œì íŠ¸ ìœ„ì¹˜, íšŒì „ê°’ ì ìš© í›„ ì¼œê¸°
                 GetObject.transform.position = position;
                 GetObject.transform.rotation = rotation;
                 GetObject.transform.parent = parent;
@@ -119,29 +142,29 @@ public class MemoryPool_System : MonoBehaviour
             }
         }
     }
-    GameObject CreateNewObjectList(GameObject CreateTargetObject, Vector3 position, Quaternion rotation, Transform parent) //»õ·Î¿î µñ¼Å³Ê¸® ¸®½ºÆ® Á¤º¸ Ãß°¡
+    GameObject CreateNewObjectList(GameObject CreateTargetObject, Vector3 position, Quaternion rotation, Transform parent) //ìƒˆë¡œìš´ ë”•ì…”ë„ˆë¦¬ ë¦¬ìŠ¤íŠ¸ ì •ë³´ ì¶”ê°€
     {
-        //»õ·Î¿î ¸®½ºÆ® ±¸¼º
+        //ìƒˆë¡œìš´ ë¦¬ìŠ¤íŠ¸ êµ¬ì„±
         List<GameObject> TargetObjectList = new List<GameObject>();
         GameObject NewObject = Instantiate(CreateTargetObject, position, rotation, parent);
-        //NewObject.SetActive(false); //¿ÀºêÁ§Æ® ²ô±â
-        TargetObjectList.Add(NewObject); //¸®½ºÆ® Ãß°¡ ÇÑµÚ
-        ObjectList.Add(CreateTargetObject, TargetObjectList); //µñ¼Å³Ê¸® Á¤º¸ Ãß°¡ ÈÄ
-        return NewObject; //¼±ÅÃµÈ ¿ÀºêÁ§Æ® ¹Ù·Î º¸³»±â
+        //NewObject.SetActive(false); //ì˜¤ë¸Œì íŠ¸ ë„ê¸°
+        TargetObjectList.Add(NewObject); //ë¦¬ìŠ¤íŠ¸ ì¶”ê°€ í•œë’¤
+        ObjectList.Add(CreateTargetObject, TargetObjectList); //ë”•ì…”ë„ˆë¦¬ ì •ë³´ ì¶”ê°€ í›„
+        return NewObject; //ì„ íƒëœ ì˜¤ë¸Œì íŠ¸ ë°”ë¡œ ë³´ë‚´ê¸°
     }
-    GameObject AddTargetDictionalyList(GameObject OriginalObject, Vector3 position, Quaternion rotation, Transform parent) //µñ¼Å³Ê¸® Á¤º¸°¡ ÀÌ¹Ì ÀÖ´Â °÷¿¡ »õ·Î¿î ¿ÀºêÁ§Æ® Ãß°¡
+    GameObject AddTargetDictionalyList(GameObject OriginalObject, Vector3 position, Quaternion rotation, Transform parent) //ë”•ì…”ë„ˆë¦¬ ì •ë³´ê°€ ì´ë¯¸ ìˆëŠ” ê³³ì— ìƒˆë¡œìš´ ì˜¤ë¸Œì íŠ¸ ì¶”ê°€
     {
-        GameObject NewObject = Instantiate(OriginalObject, position, rotation, parent); //»õ·Î¿î ¿ÀºêÁ§Æ® »ı¼º
-        ObjectList[OriginalObject].Add(NewObject); //¸®½ºÆ®¿¡ ÀÌ µ¥ÀÌÅÍ Ãß°¡
-        return NewObject; //¼±ÅÃµÈ ¿ÀºêÁ§Æ® ¹Ù·Î º¸³»±â
+        GameObject NewObject = Instantiate(OriginalObject, position, rotation, parent); //ìƒˆë¡œìš´ ì˜¤ë¸Œì íŠ¸ ìƒì„±
+        ObjectList[OriginalObject].Add(NewObject); //ë¦¬ìŠ¤íŠ¸ì— ì´ ë°ì´í„° ì¶”ê°€
+        return NewObject; //ì„ íƒëœ ì˜¤ë¸Œì íŠ¸ ë°”ë¡œ ë³´ë‚´ê¸°
     }
-    GameObject SearchListActive(GameObject TargetGameObject) //¸®½ºÆ® ¾È¿¡ ²¨Á® ÀÖ´Â ¿ÀºêÁ§Æ® ÀÖ´ÂÁö È®ÀÎ
+    GameObject SearchListActive(GameObject TargetGameObject) //ë¦¬ìŠ¤íŠ¸ ì•ˆì— êº¼ì ¸ ìˆëŠ” ì˜¤ë¸Œì íŠ¸ ìˆëŠ”ì§€ í™•ì¸
     {
         for (int i = 0; i < ObjectList[TargetGameObject].Count; i++)
         {
             if (ObjectList[TargetGameObject][i] == null)
             {
-                ObjectList[TargetGameObject].Remove(ObjectList[TargetGameObject][i]); //¸¸¾à¿¡ ´ë»óÀÌ ¾À¿¡ ¾øÀ» °æ¿ì ¸®½ºÆ®¿¡¼­ Á¦°Å
+                ObjectList[TargetGameObject].Remove(ObjectList[TargetGameObject][i]); //ë§Œì•½ì— ëŒ€ìƒì´ ì”¬ì— ì—†ì„ ê²½ìš° ë¦¬ìŠ¤íŠ¸ì—ì„œ ì œê±°
             }
             else if (ObjectList[TargetGameObject][i].activeSelf == false)
             {
