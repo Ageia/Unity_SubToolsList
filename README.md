@@ -27,4 +27,5 @@
 
 검기 이펙트를 만들 때 특정 모션의 괘적을 표시 해주는 툴입니다.
 
+![Preview](https://user-images.githubusercontent.com/10443544/111861361-001b8980-8991-11eb-9149-4c7a727d1c96.gif)
 
