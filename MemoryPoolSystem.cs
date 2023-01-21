@@ -48,7 +48,7 @@ public class MemoryPoolSystem : MonoBehaviour
 
     //싱글턴
     Dictionary<GameObject, List<GameObject>> ObjectList = new Dictionary<GameObject, List<GameObject>>(); //실제로 쓰는 데이터
-    public static MemoryPool_System instance = null; //게임 매니저 객체
+    public static MemoryPoolSystem instance = null; //게임 매니저 객체
     GameObject ParentPool;
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     private void Awake()
