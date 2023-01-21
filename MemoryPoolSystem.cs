@@ -9,33 +9,20 @@ public class MemoryPoolSystem : MonoBehaviour
     //사용법 : 
     //GetObj 함수로 오브젝트 불러오기.
     //사용하지 않는 오브젝트는 SetActive(false)
-    ////////////////////////////////////////////////////////
-    ///////////////     타입별 불러오기      ////////////////
-    ////////////////////////////////////////////////////////
-    public GameObject GetObj(GameObject TargetGameObject)
-    {
-        return CallObj(TargetGameObject, new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0), null); ;
-    }
-    public GameObject GetObj(GameObject TargetGameObject, Vector3 position)
-
-    {
-        return CallObj(TargetGameObject, position, Quaternion.Euler(0, 0, 0), null); ;
-    }
-    public GameObject GetObj(GameObject TargetGameObject, Vector3 position, Quaternion rotation)
-    {
-        return CallObj(TargetGameObject, position, rotation, null);
-    }
-    public GameObject GetObj(GameObject TargetGameObject, Vector3 position, Quaternion rotation, Transform parent)
+    public GameObject GetObj(GameObject TargetGameObject, Vector3 position = new Vector3(), Quaternion rotation = new Quaternion(), Transform parent = null)
     {
         return CallObj(TargetGameObject, position, rotation, parent);
     }
-    public void OffObj(GameObject obj) //오브젝트 끌때 사용
+    public void OffObj(GameObject obj) //오브젝트 끌때 사용 (SetActive=false 만 해도되는데 정리용으로 사용)
     {
-        obj.SetActive(false);
-        obj.transform.position = new Vector3(0, 0, 0);
-        obj.transform.rotation = Quaternion.identity;
-        obj.transform.localScale = new Vector3(1, 1, 1);
-        obj.transform.parent = ParentPool.transform;
+        if(obj)
+        {
+            obj.SetActive(false);
+            obj.transform.position = new Vector3(0, 0, 0);
+            obj.transform.rotation = Quaternion.identity;
+            obj.transform.localScale = new Vector3(1, 1, 1);
+            obj.transform.parent = ParentPool.transform;
+        }
     }
     public void ClearAll() //이 메모리풀에 존재 하는 모든 오브젝트를 제거 합니다.
     {
@@ -45,7 +32,6 @@ public class MemoryPoolSystem : MonoBehaviour
         }
     }
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
     //싱글턴
     Dictionary<GameObject, List<GameObject>> ObjectList = new Dictionary<GameObject, List<GameObject>>(); //실제로 쓰는 데이터
     public static MemoryPoolSystem instance = null; //게임 매니저 객체
@@ -61,7 +47,7 @@ public class MemoryPoolSystem : MonoBehaviour
         {
             Destroy(this.gameObject); //현재 객체를 제거
         }
-        ParentPool = new GameObject("MemoryPool_ObjsParent");
+        ParentPool = new GameObject("MemoryPoolParent");
         ParentPool.transform.parent = this.transform;
         DontDestroyOnLoad(this.gameObject); //씬이 넘어가도 이 오브젝트는 유지한다.
     }
@@ -106,7 +92,7 @@ public class MemoryPoolSystem : MonoBehaviour
     }
     GameObject InstantiateObj(GameObject OriginalObject, Vector3 position, Quaternion rotation, Transform parent) 
     {
-        GameObject NewObject = Instantiate(OriginalObject, position, rotation, parent); //새로운 오브젝트 생성
+        GameObject NewObject = Instantiate(OriginalObject, position, rotation, parent);
         ObjectList[OriginalObject].Add(NewObject); //리스트에 이 데이터 추가
         return NewObject; //선택된 오브젝트 바로 보내기
     }
