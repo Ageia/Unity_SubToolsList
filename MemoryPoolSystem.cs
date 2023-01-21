@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEditor;
 
-public class MemoryPool_System : MonoBehaviour
+public class MemoryPoolSystem : MonoBehaviour
 {
     //사용법 : 
     //GetObj 함수로 오브젝트 불러오기.
