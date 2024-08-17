@@ -1,108 +1,152 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using UnityEditor;
+using UnityEngine.SceneManagement;
 
 public class MemoryPoolSystem : MonoBehaviour
 {
-    //사용법 : 
-    //GetObj 함수로 오브젝트 불러오기.
-    //사용하지 않는 오브젝트는 SetActive(false)
-    public GameObject GetObj(GameObject TargetGameObject, Vector3 position = new Vector3(), Quaternion rotation = new Quaternion(), Transform parent = null)
+    public static MemoryPoolSystem Instance { get; private set; } = null;
+    private Dictionary<GameObject, List<GameObject>> objectPools = new Dictionary<GameObject, List<GameObject>>();
+    private static GameObject parentPool;
+    private List<GameObject> pendingSetParent = new List<GameObject>();
+
+    GameObject GetparentPool()
     {
-        return CallObj(TargetGameObject, position, rotation, parent);
-    }
-    public void OffObj(GameObject obj) //오브젝트 끌때 사용 (SetActive=false 만 해도되는데 정리용으로 사용)
-    {
-        if(obj)
+        if(parentPool == null)
         {
-            obj.SetActive(false);
-            obj.transform.position = new Vector3(0, 0, 0);
-            obj.transform.rotation = Quaternion.identity;
-            obj.transform.localScale = new Vector3(1, 1, 1);
-            obj.transform.parent = ParentPool.transform;
+            parentPool = new GameObject("MemoryPoolParent");   
+            AutoClear_MemotyPoolParentOnDestroy autoDestory = parentPool.GetComponent<AutoClear_MemotyPoolParentOnDestroy>(); 
+            if (autoDestory == null) autoDestory = parentPool.AddComponent<AutoClear_MemotyPoolParentOnDestroy>(); //AddComp Auto Clear
         }
+        return parentPool;
     }
-    public void ClearAll() //이 메모리풀에 존재 하는 모든 오브젝트를 제거 합니다.
-    {
-        foreach (var item in GetAllObject())
-        {
-            Destroy(item);
-        }
-    }
-    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    //싱글턴
-    Dictionary<GameObject, List<GameObject>> ObjectList = new Dictionary<GameObject, List<GameObject>>(); //실제로 쓰는 데이터
-    public static MemoryPoolSystem instance = null; //게임 매니저 객체
-    GameObject ParentPool;
-    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     private void Awake()
     {
-        if (instance == null) //게임 매니저 객체가 없을 때
+        if (Instance == null)
         {
-            instance = this; //이 객체를 매니저로 지정
+            Instance = this;
+            parentPool = GetparentPool();
+            DontDestroyOnLoad(this.gameObject);
         }
-        else if (instance != null) //만약 이미 있을 때 자신이 초기의 객체가 아닐 경우
+        else
         {
-            Destroy(this.gameObject); //현재 객체를 제거
+            Destroy(this.gameObject);
         }
-        ParentPool = new GameObject("MemoryPoolParent");
-        ParentPool.transform.parent = this.transform;
-        DontDestroyOnLoad(this.gameObject); //씬이 넘어가도 이 오브젝트는 유지한다.
     }
-    public List<GameObject> GetAllObject() //이 메모리풀 시스템에서 관리하는 모든 오브젝트를 가져옵니다. 게임 씬에 없는 오브젝트는 리스트에서 제거합니다.
-    {
-        List<GameObject> AllObject = new List<GameObject>();
-        for (int i = 0; i < ObjectList.Count; i++)
+
+    void Update() {
+        if(pendingSetParent.Count <= 0) return;
+        for (int i = pendingSetParent.Count - 1; i >= 0; i--)
         {
-            List<GameObject> GetList = ObjectList[ObjectList.Keys.ToArray()[i]];
-            foreach (var item in GetList)
+            GameObject obj = pendingSetParent[i];
+            if (obj != null)
             {
-                AllObject.Add(item);
-            }
-        }
-        return AllObject;
-    }
-    GameObject CallObj(GameObject TargetGameObject, Vector3 position, Quaternion rotation, Transform parent)
-    {
-        if (ObjectList.ContainsKey(TargetGameObject) == false) //리스트 자체가 없을 경우
-        {
-            List<GameObject> TargetObjectList = new List<GameObject>();
-            ObjectList[TargetGameObject] = TargetObjectList;
-            GameObject obj = InstantiateObj(TargetGameObject, position, rotation, parent);
-            return obj; //리스트도 새로 생성 하고 오브젝트도 새로 생성해서 추가
-        }
-        else //있을 경우
-        {
-            GameObject GetObject = FindObj_ActiveFalse(TargetGameObject);
-            if (GetObject == null)
-            {
-                return InstantiateObj(TargetGameObject, position, rotation, parent); //해당 리스트에 새로운놈 추가 한 뒤에 리턴 받음
-            }
-            else //리스트도 있고 비활성 오브젝트도 있을 경우
-            {
-                GetObject.transform.position = position;
-                GetObject.transform.rotation = rotation;
-                GetObject.transform.parent = parent;
-                GetObject.SetActive(true);
-                return GetObject;
+                obj.transform.SetParent(GetparentPool().transform);
+                pendingSetParent.RemoveAt(i);  // 리스트에서 제거
             }
         }
     }
-    GameObject InstantiateObj(GameObject OriginalObject, Vector3 position, Quaternion rotation, Transform parent) 
+
+    public GameObject GetObject(GameObject prefab, Vector3 position = default, Quaternion rotation = default, Transform parent = null)
     {
-        GameObject NewObject = Instantiate(OriginalObject, position, rotation, parent);
-        ObjectList[OriginalObject].Add(NewObject); //리스트에 이 데이터 추가
-        return NewObject; //선택된 오브젝트 바로 보내기
-    }
-    GameObject FindObj_ActiveFalse(GameObject GetObj) //리스트 안에 꺼져 있는 오브젝트 있는지 확인
-    {
-        List<GameObject> ObjList = ObjectList[GetObj];
-        foreach (var item in ObjList)
+        if (!objectPools.TryGetValue(prefab, out List<GameObject> pool))
         {
-            if(item.activeSelf == false) return item;
+            pool = new List<GameObject>();
+            objectPools[prefab] = pool;
+        }
+
+        GameObject obj = FindInactiveObject(pool);
+        if (obj == null)
+        {
+            obj = Object.Instantiate(prefab);
+            pool.Add(obj);
+        }
+
+        obj.transform.SetPositionAndRotation(position, rotation);
+        if(parent == null)
+        {
+            obj.transform.SetParent(null); //Detach From Memorypool Parent
+        }
+        else
+        {
+            obj.transform.SetParent(parent);
+        }
+        obj.SetActive(true);
+
+        // Check if the object already has AutoReleaseOnDisable and initialize it if needed
+        AutoReleaseOnDisable autoRelease = obj.GetComponent<AutoReleaseOnDisable>();
+        if (autoRelease == null)
+        {
+            autoRelease = obj.AddComponent<AutoReleaseOnDisable>();
+        }
+        autoRelease.Initialize(this, prefab);  // Pass the prefab to AutoReleaseOnDisable
+
+        return obj;
+    }
+
+    public void ReleaseObject(GameObject obj)
+    {
+        if (obj == null)
+        {
+            Debug.LogWarning("Attempted to release a null object.");
+            return;
+        }
+
+        obj.SetActive(false);
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localRotation = Quaternion.identity;
+        obj.transform.localScale = Vector3.one;
+        pendingSetParent.Add(obj); //Setparent Target Late
+    }
+
+    public void ClearAllObjects()
+    {
+        foreach (var pool in objectPools.Values)
+        {
+            foreach (var obj in pool)
+            {
+                GameObject.Destroy(obj);
+            }
+        }
+        objectPools.Clear();
+    }
+
+    private GameObject FindInactiveObject(List<GameObject> pool)
+    {
+        foreach (var obj in pool)
+        {
+            if (!obj.activeSelf && obj.transform.parent.gameObject == GetparentPool())
+            {
+                return obj;
+            }
         }
         return null;
+    }
+}
+
+public class AutoReleaseOnDisable : MonoBehaviour
+{
+    private MemoryPoolSystem poolSystem;
+    public GameObject Prefab { get; private set; }
+
+    public void Initialize(MemoryPoolSystem system, GameObject prefab)
+    {
+        poolSystem = system;
+        Prefab = prefab;
+    }
+
+    private void OnDisable()
+    {
+        if (poolSystem != null)
+        {
+            poolSystem.ReleaseObject(gameObject);
+        }
+    }
+}
+
+public class AutoClear_MemotyPoolParentOnDestroy : MonoBehaviour
+{
+    void OnDestroy() {
+        MemoryPoolSystem.Instance.ClearAllObjects();
     }
 }
