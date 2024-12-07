@@ -5,6 +5,7 @@ public class MemoryPoolSystem : MonoBehaviour
 {
     public static MemoryPoolSystem Instance { get; private set; } = null;
     private Dictionary<GameObject, List<GameObject>> objectPools = new Dictionary<GameObject, List<GameObject>>();
+    private Dictionary<GameObject, GameObject> resourcePrefab = new Dictionary<GameObject, GameObject>(); //Get ResourcePrefab From Instance GmaeObject
     private static GameObject parentPool;
     private List<GameObject> pendingSetParent = new List<GameObject>();
 
@@ -46,6 +47,18 @@ public class MemoryPoolSystem : MonoBehaviour
         }
     }
 
+    public GameObject GetResourcePrefab(GameObject instanceObj)
+    {
+        if(resourcePrefab.ContainsKey(instanceObj))
+        {
+            return resourcePrefab[instanceObj];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     public GameObject GetObject(GameObject prefab, Vector3 position = default, Quaternion rotation = default, Transform parent = null)
     {
         if (!objectPools.TryGetValue(prefab, out List<GameObject> pool))
@@ -59,9 +72,10 @@ public class MemoryPoolSystem : MonoBehaviour
         {
             obj = Object.Instantiate(prefab);
             pool.Add(obj);
+            Debug.Log("Apply ResourcePrefab - " + "Instance : " + obj.name + "    " + "ResourcePrefab : " + prefab.name);
+            if(GetResourcePrefab(obj) == null) resourcePrefab[obj] = prefab;
         }
 
-        obj.transform.SetPositionAndRotation(position, rotation);
         if(parent == null)
         {
             obj.transform.SetParent(null); //Detach From Memorypool Parent
@@ -70,6 +84,7 @@ public class MemoryPoolSystem : MonoBehaviour
         {
             obj.transform.SetParent(parent);
         }
+        obj.transform.SetPositionAndRotation(position, rotation);
         obj.SetActive(true);
 
         // Check if the object already has AutoReleaseOnDisable and initialize it if needed
@@ -108,15 +123,19 @@ public class MemoryPoolSystem : MonoBehaviour
             }
         }
         objectPools.Clear();
+        resourcePrefab.Clear();
     }
 
     private GameObject FindInactiveObject(List<GameObject> pool)
     {
         foreach (var obj in pool)
         {
-            if (!obj.activeSelf && obj.transform.parent.gameObject == GetparentPool())
+            if (!obj.activeSelf && obj.transform.parent != null)
             {
-                return obj;
+                if(obj.transform.parent.gameObject == GetparentPool() && !pendingSetParent.Contains(obj))
+                {
+                    return obj;
+                }
             }
         }
         return null;
@@ -133,8 +152,7 @@ public class AutoReleaseOnDisable : MonoBehaviour
         poolSystem = system;
         Prefab = prefab;
     }
-
-    private void OnDisable()
+    void OnDisable()
     {
         if (poolSystem != null)
         {
