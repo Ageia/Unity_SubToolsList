@@ -19,7 +19,6 @@
 
 [![Video Title](https://img.youtube.com/vi/taShYv0HlVA/0.jpg)](https://www.youtube.com/watch?v=taShYv0HlVA)
 
-[![Watch the video](https://user-images.githubusercontent.com/10443544/87226329-f9824e80-c3cd-11ea-8101-bd27f549744a.png)](https://youtu.be/taShYv0HlVA)
 
 ![Preview](https://user-images.githubusercontent.com/10443544/87226033-0dc54c00-c3cc-11ea-85dd-8f88d6065a0a.gif)
 
