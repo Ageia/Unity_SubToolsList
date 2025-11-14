@@ -17,7 +17,7 @@
 
 쉽게 사용할 수 있는 메모리풀 툴입니다.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/taShYv0HlVA?si=rIK5K9xjfKLpr4wN" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Video Title](https://img.youtube.com/vi/영상ID/0.jpg)](https://www.youtube.com/watch??v=taShYv0HlVA)
 
 [![Watch the video](https://user-images.githubusercontent.com/10443544/87226329-f9824e80-c3cd-11ea-8101-bd27f549744a.png)](https://youtu.be/taShYv0HlVA)
 
